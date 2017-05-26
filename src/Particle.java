@@ -1,7 +1,7 @@
 /**
  * Created by Lucas on 02/04/2017.
  */
-import java.util.ArrayList;
+
 
 public class Particle {
 
@@ -29,17 +29,8 @@ public class Particle {
     boolean onTarget;
     Vector goal;
     double privateSpace = 0;
-
-    public Particle(int id,double radius, double x, double y,Vector speed,double mass){
-        this.id = id;
-        this.radius = radius;
-        this.x = x;
-        this.y = y;
-        this.vx = speed.getX();
-        this.vy = speed.getY();
-        //this.nextSpeed = new Vector(0.03,0);
-        this.mass = mass;
-    }
+    private double testVx;
+    private double testVy;
 
     public Particle(int id,double radius, double x, double y,double velx,double vely,double mass){
         this.id = id;
@@ -55,25 +46,6 @@ public class Particle {
         this.mass = mass;
         this.f = new Vector();
         privateSpace = radius;
-    }
-
-
-    public Particle(int id,double radius, double x, double y,double velx,double vely,double ax,double ay,double mass){
-        this.id = 1;
-        this.radius = radius;
-        this.x=x;
-        this.y = y;
-        this.vx = velx;
-        this.vy = vely;
-        this.ax = ax;
-        this.ay = ay;
-        this.mass = mass;
-        this.f = new Vector();
-    }
-
-    public Particle(int id, double radius){
-        this.id = id;
-        this.radius = radius;
     }
 
     public Particle(Particle p){
@@ -307,7 +279,7 @@ public class Particle {
         double cjy = o.y + o.vy*time;
 
         double dx = cix - cjx;
-        double dy = ciy - cjy ;
+        double dy = ciy - cjy;
         double dist = Math.sqrt(dx*dx + dy*dy);
         double nx = dx / dist;
         double ny = dy / dist;
@@ -317,8 +289,50 @@ public class Particle {
         double d = Math.sqrt(rx*rx + ry*ry) + (dist - privateSpace - o.radius);
         return new Vector(nx*d,ny*d);
     }
+    public Vector repulsionWall(Particle obs){
+        Vector v = new Vector(0,0);
+        if(dist2(this,obs) < (privateSpace+obs.radius)*(privateSpace+obs.radius)){
 
-    public void setPrivateSpace(int privateSpace) {
+            double dx = x - obs.x;
+            double dy = y - obs.y;
+            double dist = Math.sqrt(dist2(this,obs));
+            double nx = dx/dist;
+            double ny = dy/dist;
+            double nearx = obs.x + obs.radius*nx;
+            double neary = obs.y + obs.radius*ny;
+            double ndist = Math.sqrt((x - nearx)*(x - nearx) + (y - neary)*(y - neary));
+            double s = privateSpace + radius - (ndist);
+            double tot = s / Math.pow(ndist - radius,3);
+            v.add(tot*nx,tot*ny);
+        }
+        return v;
+    }
+
+    public void setPrivateSpace(double privateSpace) {
         this.privateSpace = privateSpace;
+    }
+
+    public void testPosition(Vector add,double dt) {
+        this.testVx= vx + add.x*dt;
+        this.testVy= vy + add.y*dt;
+    }
+
+    public double testPredict(Particle o) {
+        double dx = o.x - this.x;
+        double dy = o.y - this.y;
+        double dvx = o.getSpeedX() - this.testVx;
+        double dvy = o.getSpeedY() - this.testVy;
+        double dvdr = dvx*dx + dvy*dy;
+        if(dvdr >= 0 ){
+            return -1;
+        }
+        double dvdv = dvx*dvx + dvy*dvy;
+        double drdr = dx*dx + dy*dy;
+        double d = dvdr*dvdr - dvdv*(drdr - (privateSpace + o.radius)*(privateSpace + o.radius));
+        if(d < 0 ){
+            return -1;
+        }
+
+        return -(dvdr + Math.sqrt(d))/dvdv;
     }
 }

@@ -1,8 +1,7 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by lcasagrande on 26/05/17.
@@ -10,7 +9,8 @@ import java.util.List;
 public class Simulation {
     List<Particle> people;
     List<Particle> obstacle;
-    double dt = 0.01;
+    double dt = 1.0/60;
+    double ta = 3;
     public Simulation(List<Particle> p, List<Particle> o){
         people = p;
         obstacle = o;
@@ -25,17 +25,16 @@ public class Simulation {
         int acum = 0;
         while(!peopleHasReachTarget()){
             acum++;
-            fl.write("2\n"+(acum*dt) +"\n");
+            fl.write((people.size() + obstacle.size()) + "\n"+(acum*dt) +"\n");
             for(Particle p : people){
                 Vector force =forces.get(p.id);
+
                 force.set(p.goalForce());
                 for(Particle o : obstacle){
-
-                    double t = p.predict(o);
-                    if(t > 0){
-                        force.add(p.repulsionForce(o,t));
-                    }
+                    force.add(p.repulsionWall(o));
                 }
+                //getObstacleForce(p,force);
+
                 p.updatePosition(force,dt);
 
             }
@@ -53,6 +52,33 @@ public class Simulation {
         System.out.println("TODOS");
         fl.close();
 
+    }
+
+    private Vector getObstacleForce(Particle p,Vector force) {
+        Vector f = new Vector();
+        Particle aux = new Particle(p);
+        List<Collision> crash = new ArrayList<>();
+        for(Particle o : obstacle){
+            double t = p.predict(o);
+            if(t >= 0 && t < 10) {
+                crash.add(new Collision(o,t));
+            }
+        }
+        Collections.sort(crash);
+        int i = 0;
+        boolean avoidCrash = false;
+        if(!crash.isEmpty()) {
+            while (i < 5 && !avoidCrash) {
+                avoidCrash = true;
+                Collision o = crash.get(i);
+                p.testPosition(force.add(p.repulsionForce(o.p, o.time)), dt);
+                for (int j = i + 1; j < crash.size() && avoidCrash; j++) {
+                    avoidCrash = (p.testPredict(crash.get(j).p) == -1);
+                }
+                i++;
+            }
+        }
+        return force;
     }
 
     private boolean peopleHasReachTarget() {
