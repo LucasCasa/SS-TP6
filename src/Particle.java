@@ -25,13 +25,16 @@ public class Particle {
     double ax;
     double ay;
     double prefSpeed = 1.4;
-    double tau = 0.5;
+    double tau = 0.1;
     boolean onTarget;
     Vector goal;
     double privateSpace = 0;
     private double testVx;
     private double testVy;
 
+    double dmid = 3;
+    double dmax = 5;
+    double dmin = 0;
     public Particle(int id,double radius, double x, double y,double velx,double vely,double mass){
         this.id = id;
         this.radius = radius;
@@ -46,6 +49,7 @@ public class Particle {
         this.mass = mass;
         this.f = new Vector();
         privateSpace = radius;
+        dmin = privateSpace + radius / 2;
     }
 
     public Particle(Particle p){
@@ -59,6 +63,9 @@ public class Particle {
         lastRy = p.lastRy;
         id = p.id;
         f = p.f;
+        dmin = p.dmin;
+        dmax = p.dmax;
+        dmid = p.dmin;
     }
 
     public void setPrevious(double x, double y){
@@ -206,7 +213,7 @@ public class Particle {
     public void updatePosition(Vector f,double dt){
         vx+= f.x*dt;
         vy+= f.y*dt;
-
+        this.f = f;
         x+= vx*dt;
         y+= vy*dt;
         if(Math.abs(x - goal.x) < radius && Math.abs(y - goal.y) < radius){
@@ -287,22 +294,30 @@ public class Particle {
         double rx = cix - x;
         double ry = ciy - y;
         double d = Math.sqrt(rx*rx + ry*ry) + (dist - privateSpace - o.radius);
-        return new Vector(nx*d,ny*d);
+        if(d > dmax){
+            return new Vector(0,0);
+        }
+        if(d > dmid){
+            double f = dmax/(dmin*(dmax - dmid)) - d/(dmin*(dmax - dmid));
+            return new Vector(f*nx,f*ny);
+        }
+        if(d > dmin){
+            return new Vector((1/dmin)*nx,(1/dmin)*ny);
+        }
+        return new Vector((1/d)*nx,ny*(1/d));
     }
     public Vector repulsionWall(Particle obs){
         Vector v = new Vector(0,0);
-        if(dist2(this,obs) < (privateSpace+obs.radius)*(privateSpace+obs.radius)){
-
+        double diw = Math.sqrt(dist2(this,obs)) - obs.radius;
+        if(diw - radius < privateSpace){
             double dx = x - obs.x;
             double dy = y - obs.y;
             double dist = Math.sqrt(dist2(this,obs));
             double nx = dx/dist;
             double ny = dy/dist;
-            double nearx = obs.x + obs.radius*nx;
-            double neary = obs.y + obs.radius*ny;
-            double ndist = Math.sqrt((x - nearx)*(x - nearx) + (y - neary)*(y - neary));
+            double ndist = dist - obs.radius;
             double s = privateSpace + radius - (ndist);
-            double tot = s / Math.pow(ndist - radius,3);
+            double tot = s / Math.pow(ndist - radius,1);
             v.add(tot*nx,tot*ny);
         }
         return v;

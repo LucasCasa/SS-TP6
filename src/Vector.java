@@ -48,4 +48,10 @@ public class Vector {
         this.x = v.x;
         this.y = v.y;
     }
+
+    public Vector multiply(double i) {
+        this.x*= i;
+        this.y*= i;
+        return this;
+    }
 }

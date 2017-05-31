@@ -23,30 +23,30 @@ public class Simulation {
         }
         FileWriter fl = new FileWriter("out.txt");
         int acum = 0;
-        while(!peopleHasReachTarget()){
+        while(!peopleHasReachTarget() && acum*dt < 100){
             acum++;
             fl.write((people.size() + obstacle.size()) + "\n"+(acum*dt) +"\n");
             for(Particle p : people){
                 Vector force =forces.get(p.id);
 
                 force.set(p.goalForce());
-                for(Particle o : obstacle){
+                /*for(Particle o : obstacle){
                     force.add(p.repulsionWall(o));
-                }
-                //getObstacleForce(p,force);
+                }*/
+                getObstacleForce(p,force);
 
                 p.updatePosition(force,dt);
 
             }
 
             for(Particle p : people){
-                fl.write(p.x + "\t" + p.y + "\t" + p.radius + "\t" + p.vx + "\t" + p.vy + "\n");
+                fl.write(p.toString());
                 if(p.isOnTarget()){
                     System.out.println("Llegue");
                 }
             }
             for (Particle o : obstacle){
-                fl.write(o.x + "\t" + o.y + "\t" + o.radius + "\t" + o.vx + "\t" + o.vy + "\n");
+                fl.write(o.toString());
             }
         }
         System.out.println("TODOS");
@@ -60,7 +60,7 @@ public class Simulation {
         List<Collision> crash = new ArrayList<>();
         for(Particle o : obstacle){
             double t = p.predict(o);
-            if(t >= 0 && t < 10) {
+            if(t >= 0 && t < 5) {
                 crash.add(new Collision(o,t));
             }
         }
