@@ -1,3 +1,4 @@
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,52 +11,43 @@ public class Main {
     public static void main(String[] args) throws IOException {
         List<Particle> obstacles = new ArrayList<>();
         List<Particle> people = new ArrayList<>();
-
-        createObstacles(obstacles);
-        Particle hooman = new Particle(0,0.5,Math.random()*5,20,0,0,80);
-        boolean collision = false;
-        for(Particle o : obstacles){
-            if(Particle.dist2(hooman,o)< (hooman.radius + o.radius)*(hooman.radius + o.radius)){
-                collision = true;
-            }
-        }
-        hooman.setPrivateSpace(0.7);
-        while(collision){
-            collision = false;
-            hooman.setX(Math.random()*8 + 1);
-            for(Particle o : obstacles){
-                if(Particle.dist2(hooman,o)< (hooman.radius + o.radius)*(hooman.radius + o.radius)){
+        Simulation s = new Simulation(people, obstacles);
+        FileWriter time = new FileWriter("data.txt");
+        for(int i = 0;i<1000;i++) {
+            people.clear();
+            obstacles.clear();
+            createObstacles(obstacles);
+            Particle hooman = new Particle(0, 0.5, Math.random() * 10, 23, 0, 0, 80);
+            boolean collision = false;
+            for (Particle o : obstacles) {
+                if (Particle.dist2(hooman, o) < (hooman.radius + o.radius) * (hooman.radius + o.radius)) {
                     collision = true;
                 }
             }
+            hooman.setPrivateSpace(0.7);
+            while (collision) {
+                collision = false;
+                hooman.setX(Math.random() * 8 + 1);
+                for (Particle o : obstacles) {
+                    if (Particle.dist2(hooman, o) < (hooman.radius + o.radius) * (hooman.radius + o.radius)) {
+                        collision = true;
+                    }
+                }
+            }
+            hooman.setGoal(new Vector(5, -1));
+            people.add(hooman);
+            s.simulate();
         }
-        Particle obs = new Particle(1,0.5,5,4.8,0,0,80);
-        Particle obs2 = new Particle(2,0.5,7,4.8,0,0,80);
-        Particle obs4 = new Particle(3,0.5,11,4.8,0,0,80);
-        Particle obs3 = new Particle(4,0.5,13,4.8,0,0,80);
-        Particle obs5 = new Particle(5,0.5,13,8,0,0,80);
-        Particle obs6 = new Particle(6,1,11,5.5,0,0,80);
-        Particle obs7 = new Particle(7,0.5,11,9,0,0,80);
-        Particle obs8 = new Particle(8,0.5,7,10,0,0,80);
-        /*obstacles.add(obs);
-        obstacles.add(obs2);
-        obstacles.add(obs3);
-        //obstacles.add(obs4);
-        obstacles.add(obs5);
-        obstacles.add(obs6);
-        obstacles.add(obs7);
-        //obstacles.add(obs8);*/
-        hooman.setGoal(new Vector(5,-1));
-        people.add(hooman);
-        System.out.println("SIMULO");
-        Simulation s = new Simulation(people,obstacles);
-
-        s.simulate();
+        for(int i = 0; i<1000;i++){
+            time.write(s.time.get(i) + "\t" + s.avgSpeed.get(i) + "\t" +  s.longitud.get(i) + "\t" + s.opt.get(i) + "\n");
+        }
+        time.close();
     }
+
 
     private static void createObstacles(List<Particle> obstacles) {
         int id = 1;
-        for(int i = 0; i<40;i++) {
+        for(int i = 0; i<30;i++) {
             Particle p = new Particle(id, 0.2, Math.random() * 10, Math.random() * 20, 0, 0, 1);
             id++;
             boolean collision = false;
@@ -81,6 +73,13 @@ public class Main {
             id++;
             obstacles.add(new Particle(id,0.5,10.5,i,0,0,1));
             id++;
+        }
+
+    }
+    public static void createDinamicObstacles(List<Particle> obstacles){
+        for(int i = 0; i<20;i++){
+            Particle p = new Particle(i+1, 0.5, Math.random() * 10, i, Math.random()*4 - 2, 0, 1);
+            obstacles.add(p);
         }
 
     }

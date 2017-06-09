@@ -32,9 +32,10 @@ public class Particle {
     private double testVx;
     private double testVy;
 
-    double dmid = 3;
-    double dmax = 5;
+    double dmid = 4;
+    double dmax = 6;
     double dmin = 0;
+    double acum = 0;
     public Particle(int id,double radius, double x, double y,double velx,double vely,double mass){
         this.id = id;
         this.radius = radius;
@@ -49,7 +50,7 @@ public class Particle {
         this.mass = mass;
         this.f = new Vector();
         privateSpace = radius;
-        dmin = privateSpace + radius / 2;
+        dmin = radius;
     }
 
     public Particle(Particle p){
@@ -216,6 +217,7 @@ public class Particle {
         this.f = f;
         x+= vx*dt;
         y+= vy*dt;
+        acum+= Math.sqrt(vx*dt*vx*dt + vy*dt*vy*dt);
         if(Math.abs(x - goal.x) < radius && Math.abs(y - goal.y) < radius){
             onTarget = true;
         }
@@ -299,12 +301,12 @@ public class Particle {
         }
         if(d > dmid){
             double f = dmax/(dmin*(dmax - dmid)) - d/(dmin*(dmax - dmid));
-            return new Vector(f*nx,f*ny);
+            return new Vector(4*f*nx,4*f*ny);
         }
         if(d > dmin){
-            return new Vector((1/dmin)*nx,(1/dmin)*ny);
+            return new Vector((4/dmin)*nx,(4/dmin)*ny);
         }
-        return new Vector((1/d)*nx,ny*(1/d));
+        return new Vector((4/d)*nx,ny*(4/d));
     }
     public Vector repulsionWall(Particle obs){
         Vector v = new Vector(0,0);
@@ -349,5 +351,10 @@ public class Particle {
         }
 
         return -(dvdr + Math.sqrt(d))/dvdv;
+    }
+
+    public void updatePosition(double dt) {
+        x+=vx*dt;
+        y+=vy*dt;
     }
 }

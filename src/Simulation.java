@@ -9,21 +9,29 @@ import java.util.*;
 public class Simulation {
     List<Particle> people;
     List<Particle> obstacle;
+    List<Double> time = new ArrayList<Double>();
+    List<Double> longitud = new ArrayList<Double>();
+    List<Double> avgSpeed = new ArrayList<Double>();
+    List<Double> opt = new ArrayList<Double>();
     double dt = 1.0/60;
     double ta = 3;
+    double t;
     public Simulation(List<Particle> p, List<Particle> o){
         people = p;
         obstacle = o;
     }
 
     public void simulate() throws IOException{
+        t++;
+        Particle h = people.get(0);
+        double optim = Math.sqrt((h.x - h.goal.x)*(h.x - h.goal.x) + (h.y - h.goal.y)*(h.y - h.goal.y))- h.radius;
         List<Vector> forces = new ArrayList<>();
         for(int i = 0; i<people.size();i++){
             forces.add(new Vector(0,0));
         }
         FileWriter fl = new FileWriter("out.txt");
         int acum = 0;
-        while(!peopleHasReachTarget() && acum*dt < 100){
+        while(!peopleHasReachTarget() && acum*dt < 50){
             acum++;
             fl.write((people.size() + obstacle.size()) + "\n"+(acum*dt) +"\n");
             for(Particle p : people){
@@ -47,9 +55,21 @@ public class Simulation {
             }
             for (Particle o : obstacle){
                 fl.write(o.toString());
+                o.updatePosition(dt);
+                if(o.x > 10 || o.x < 0){
+                    o.vx*=-1;
+                }
             }
         }
-        System.out.println("TODOS");
+        //System.out.println("Tiempo: " + acum*dt);
+        time.add(acum*dt);
+        //System.out.println("Longitud del Recorrido: " + people.get(0).acum);
+        longitud.add(people.get(0).acum);
+        //System.out.println("Recorrido Optimo: " + optim);
+        opt.add(optim);
+        //System.out.println("Velocidad Media: " + people.get(0).acum/(acum*dt));
+        avgSpeed.add(people.get(0).acum/(acum*dt));
+        System.out.println(t);
         fl.close();
 
     }
