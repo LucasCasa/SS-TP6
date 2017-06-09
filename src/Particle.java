@@ -36,6 +36,7 @@ public class Particle {
     double dmax = 6;
     double dmin = 0;
     double acum = 0;
+    double mod= 0;
     public Particle(int id,double radius, double x, double y,double velx,double vely,double mass){
         this.id = id;
         this.radius = radius;
@@ -356,5 +357,9 @@ public class Particle {
     public void updatePosition(double dt) {
         x+=vx*dt;
         y+=vy*dt;
+    }
+
+    public void setMod(){
+        mod = 1;
     }
 }

@@ -13,7 +13,8 @@ public class Main {
         List<Particle> people = new ArrayList<>();
         Simulation s = new Simulation(people, obstacles);
         FileWriter time = new FileWriter("data.txt");
-        for(int i = 0;i<1000;i++) {
+        int repeat = 10000;
+        for(int i = 0;i<repeat;i++) {
             people.clear();
             obstacles.clear();
             createObstacles(obstacles);
@@ -36,9 +37,9 @@ public class Main {
             }
             hooman.setGoal(new Vector(5, -1));
             people.add(hooman);
-            s.simulate();
+            s.simulate(repeat == 1);
         }
-        for(int i = 0; i<1000;i++){
+        for(int i = 0; i<repeat;i++){
             time.write(s.time.get(i) + "\t" + s.avgSpeed.get(i) + "\t" +  s.longitud.get(i) + "\t" + s.opt.get(i) + "\n");
         }
         time.close();
@@ -68,12 +69,19 @@ public class Main {
             }
             obstacles.add(p);
         }
-        for(double i = 0; i<20;i+=0.5){
-            obstacles.add(new Particle(id,0.5,-0.5,i,0,0,1));
-            id++;
-            obstacles.add(new Particle(id,0.5,10.5,i,0,0,1));
-            id++;
-        }
+        /*Particle topLeft = new Particle(100,0,0);
+        topLeft.setMod();
+        obstacles.add(topLeft);
+        Particle bottomLeft = new Particle(100,0,0);
+        topLeft.setMod();
+        obstacles.add(bottomLeftLeft);
+        Particle topRigth = new Particle(100,0,0);
+        topLeft.setMod();
+        obstacles.add(topLeft);
+        Particle bottomRigth= new Particle(100,0,0);
+        topLeft.setMod();
+        obstacles.add(topLeft);
+        */
 
     }
     public static void createDinamicObstacles(List<Particle> obstacles){

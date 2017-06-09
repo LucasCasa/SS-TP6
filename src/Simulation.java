@@ -21,7 +21,7 @@ public class Simulation {
         obstacle = o;
     }
 
-    public void simulate() throws IOException{
+    public void simulate(boolean file) throws IOException{
         t++;
         Particle h = people.get(0);
         double optim = Math.sqrt((h.x - h.goal.x)*(h.x - h.goal.x) + (h.y - h.goal.y)*(h.y - h.goal.y))- h.radius;
@@ -29,11 +29,14 @@ public class Simulation {
         for(int i = 0; i<people.size();i++){
             forces.add(new Vector(0,0));
         }
-        FileWriter fl = new FileWriter("out.txt");
+        FileWriter fl = null;
+        if(file)
+             fl = new FileWriter("out.txt");
         int acum = 0;
         while(!peopleHasReachTarget() && acum*dt < 50){
             acum++;
-            fl.write((people.size() + obstacle.size()) + "\n"+(acum*dt) +"\n");
+            if(file)
+                fl.write((people.size() + obstacle.size()) + "\n"+(acum*dt) +"\n");
             for(Particle p : people){
                 Vector force =forces.get(p.id);
 
@@ -48,13 +51,15 @@ public class Simulation {
             }
 
             for(Particle p : people){
-                fl.write(p.toString());
+                if(file)
+                    fl.write(p.toString());
                 if(p.isOnTarget()){
                     System.out.println("Llegue");
                 }
             }
             for (Particle o : obstacle){
-                fl.write(o.toString());
+                if(file)
+                    fl.write(o.toString());
                 o.updatePosition(dt);
                 if(o.x > 10 || o.x < 0){
                     o.vx*=-1;
@@ -70,7 +75,8 @@ public class Simulation {
         //System.out.println("Velocidad Media: " + people.get(0).acum/(acum*dt));
         avgSpeed.add(people.get(0).acum/(acum*dt));
         System.out.println(t);
-        fl.close();
+        if(file)
+            fl.close();
 
     }
 
