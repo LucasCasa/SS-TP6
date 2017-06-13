@@ -14,7 +14,7 @@ public class Main {
         List<Particle> people = new ArrayList<>();
         Simulation s = new Simulation(people, obstacles);
         FileWriter time = new FileWriter("data.txt");
-        int repeat = 1;
+        int repeat = 1000;
         for(int i = 0;i<repeat;i++) {
             people.clear();
             obstacles.clear();

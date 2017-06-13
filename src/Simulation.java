@@ -23,7 +23,7 @@ public class Simulation {
 
     public void simulate(boolean file) throws IOException{
         t++;
-        Particle h = people.get(0);
+        Particle h = getHuman();
         double optim = Math.sqrt((h.x - h.goal.x)*(h.x - h.goal.x) + (h.y - h.goal.y)*(h.y - h.goal.y))- h.radius;
         List<Vector> forces = new ArrayList<>();
         for(int i = 0; i<people.size();i++){
@@ -62,7 +62,7 @@ public class Simulation {
                     }
                 }else{
                     if(p.isOnTarget()) {
-                        System.out.println("Llegue");
+                        //System.out.println("Llegue");
                     }
                 }
             }
@@ -75,7 +75,7 @@ public class Simulation {
                 }
             }
         }
-        //if(people.get(0).onTarget){
+        if(h.onTarget){
             //System.out.println("Tiempo: " + acum*dt);
             time.add(acum*dt);
             //System.out.println("Longitud del Recorrido: " + people.get(0).acum);
@@ -84,14 +84,23 @@ public class Simulation {
             opt.add(optim);
             //System.out.println("Velocidad Media: " + people.get(0).acum/(acum*dt));
             avgSpeed.add(people.get(0).acum/(acum*dt));
-            System.out.println(t);
-        //}else{
+            //System.out.println(t);
+        }else{
             System.out.println("ERROR");
-        //}
+        }
 
         if(file)
             fl.close();
 
+    }
+
+    private Particle getHuman() {
+        for(Particle p : people){
+            if(p.id == 0){
+                return p;
+            }
+        }
+        return null;
     }
 
     private void getPeopleForce(Particle p, Vector force) {
