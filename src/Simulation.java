@@ -33,19 +33,18 @@ public class Simulation {
         if(file)
              fl = new FileWriter("out.txt");
         int acum = 0;
-        while(!peopleHasReachTarget() && acum*dt < 50){
+        while(!peopleHasReachTarget() && acum*dt < 35){
             acum++;
             if(file)
                 fl.write((people.size() + obstacle.size()) + "\n"+(acum*dt) +"\n");
             for(Particle p : people){
                 Vector force =forces.get(p.id);
-
                 force.set(p.goalForce());
                 /*for(Particle o : obstacle){
                     force.add(p.repulsionWall(o));
                 }*/
-                getObstacleForce(p,force);
-
+                getForce(p,people,force);
+                getForce(p,obstacle,force);
                 p.updatePosition(force,dt);
 
             }
@@ -53,38 +52,57 @@ public class Simulation {
             for(Particle p : people){
                 if(file)
                     fl.write(p.toString());
-                if(p.isOnTarget()){
-                    System.out.println("Llegue");
+                if(p.id > 0){
+                    if(p.isOnTarget()){
+                        if(p.goal.x == 0)
+                            p.setGoal(new Vector(10,p.getY()));
+                        else
+                            p.setGoal(new Vector(0,p.getY()));
+                        p.onTarget = false;
+                    }
+                }else{
+                    if(p.isOnTarget()) {
+                        System.out.println("Llegue");
+                    }
                 }
             }
             for (Particle o : obstacle){
                 if(file)
                     fl.write(o.toString());
                 o.updatePosition(dt);
-                if(o.x > 10 || o.x < 0){
+                if(o.x > Main.w || o.x < 0){
                     o.vx*=-1;
                 }
             }
         }
-        //System.out.println("Tiempo: " + acum*dt);
-        time.add(acum*dt);
-        //System.out.println("Longitud del Recorrido: " + people.get(0).acum);
-        longitud.add(people.get(0).acum);
-        //System.out.println("Recorrido Optimo: " + optim);
-        opt.add(optim);
-        //System.out.println("Velocidad Media: " + people.get(0).acum/(acum*dt));
-        avgSpeed.add(people.get(0).acum/(acum*dt));
-        System.out.println(t);
+        //if(people.get(0).onTarget){
+            //System.out.println("Tiempo: " + acum*dt);
+            time.add(acum*dt);
+            //System.out.println("Longitud del Recorrido: " + people.get(0).acum);
+            longitud.add(people.get(0).acum);
+            //System.out.println("Recorrido Optimo: " + optim);
+            opt.add(optim);
+            //System.out.println("Velocidad Media: " + people.get(0).acum/(acum*dt));
+            avgSpeed.add(people.get(0).acum/(acum*dt));
+            System.out.println(t);
+        //}else{
+            System.out.println("ERROR");
+        //}
+
         if(file)
             fl.close();
 
     }
 
-    private Vector getObstacleForce(Particle p,Vector force) {
+    private void getPeopleForce(Particle p, Vector force) {
+
+    }
+
+    private Vector getForce(Particle p,List<Particle> oth,Vector force) {
         Vector f = new Vector();
         Particle aux = new Particle(p);
         List<Collision> crash = new ArrayList<>();
-        for(Particle o : obstacle){
+        for(Particle o : oth){
             double t = p.predict(o);
             if(t >= 0 && t < 5) {
                 crash.add(new Collision(o,t));
@@ -97,7 +115,7 @@ public class Simulation {
             while (i < 5 && !avoidCrash) {
                 avoidCrash = true;
                 Collision o = crash.get(i);
-                p.testPosition(force.add(p.repulsionForce(o.p, o.time)), dt);
+                p.testPosition(force.add(p.repulsionForce(o.p, o.time).multiply(1.0/(i+1))), dt);
                 for (int j = i + 1; j < crash.size() && avoidCrash; j++) {
                     avoidCrash = (p.testPredict(crash.get(j).p) == -1);
                 }
@@ -108,11 +126,10 @@ public class Simulation {
     }
 
     private boolean peopleHasReachTarget() {
-
         for(Particle p : people){
-            if(!p.isOnTarget())
-                return false;
+            if(p.id == 0 && p.onTarget)
+                return true;
         }
-        return true;
+        return false;
     }
 }

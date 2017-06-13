@@ -154,7 +154,7 @@ public class Particle {
 
     @Override
     public String toString() {
-        return x + "\t" + y + "\t" + radius + "\t" + f.x + "\t" + f.y + "\n";
+        return x + "\t" + y + "\t" + radius + "\t" + vx + "\t" + vy + "\t" + Math.sqrt(vx*vx + vy*vy)+"\n";
     }
 
     public void setSpeedX(double speedX) {
@@ -301,8 +301,8 @@ public class Particle {
             return new Vector(0,0);
         }
         if(d > dmid){
-            double f = dmax/(dmin*(dmax - dmid)) - d/(dmin*(dmax - dmid));
-            return new Vector(4*f*nx,4*f*ny);
+            double f = 4*dmax/(dmin*(dmax - dmid)) - 4*d/(dmin*(dmax - dmid));
+            return new Vector(f*nx,f*ny);
         }
         if(d > dmin){
             return new Vector((4/dmin)*nx,(4/dmin)*ny);
