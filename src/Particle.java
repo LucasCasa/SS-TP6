@@ -32,7 +32,7 @@ public class Particle {
     private double testVx;
     private double testVy;
 
-    double dmid = 4;
+    double dmid = 1;
     double dmax = 6;
     double dmin = 0;
     double acum = 0;
@@ -154,7 +154,12 @@ public class Particle {
 
     @Override
     public String toString() {
-        return x + "\t" + y + "\t" + radius + "\t" + vx + "\t" + vy + "\t" + Math.sqrt(vx*vx + vy*vy)+"\n";
+        if(mod == 1) {
+            return x + "\t" + y + "\t" + radius + "\t" + Math.sqrt(vx * vx + vy * vy) +"\t" + 1 + "\t" + 0 +"\t"+ 0 +"\n";
+        }else{
+            return x + "\t" + y + "\t" + radius + "\t"+  Math.sqrt(vx * vx + vy * vy) +"\t" + 0 + "\t" + 1 +"\t"+ 0 +"\n";
+        }
+
     }
 
     public void setSpeedX(double speedX) {
@@ -297,18 +302,20 @@ public class Particle {
         double rx = cix - x;
         double ry = ciy - y;
         double d = Math.sqrt(rx*rx + ry*ry) + (dist - privateSpace - o.radius);
+        int mod = 4;
         if(d > dmax){
             return new Vector(0,0);
         }
         if(d > dmid){
-            double f = 4*dmax/(dmin*(dmax - dmid)) - 4*d/(dmin*(dmax - dmid));
+            double f = mod*dmax/(dmin*(dmax - dmid)) - mod*d/(dmin*(dmax - dmid));
             return new Vector(f*nx,f*ny);
         }
         if(d > dmin){
-            return new Vector((4/dmin)*nx,(4/dmin)*ny);
+            return new Vector((mod/dmin)*nx,(mod/dmin)*ny);
         }
-        return new Vector((4/d)*nx,ny*(4/d));
+        return new Vector((mod/d)*nx,ny*(mod/d));
     }
+
     public Vector repulsionWall(Particle obs){
         Vector v = new Vector(0,0);
         double diw = Math.sqrt(dist2(this,obs)) - obs.radius;

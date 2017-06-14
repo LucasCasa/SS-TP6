@@ -14,13 +14,14 @@ public class Main {
         List<Particle> people = new ArrayList<>();
         Simulation s = new Simulation(people, obstacles);
         FileWriter time = new FileWriter("data.txt");
-        int repeat = 1000;
+        int repeat = 10000;
         for(int i = 0;i<repeat;i++) {
             people.clear();
             obstacles.clear();
-            //createObstacles(obstacles);
-            createDinamicObstacles(people);
-            Particle hooman = new Particle(0, 0.5, Math.random() * w, h+3, 0, 0, 80);
+            createObstacles(obstacles);
+            //createDinamicObstacles(people);
+            //createDeterministicObstacles(obstacles);
+            Particle hooman = new Particle(0, 0.5,  Math.random()*w, h+3, 0, 0, 80);
             boolean collision = false;
             for (Particle o : obstacles) {
                 if (Particle.dist2(hooman, o) < (hooman.radius + o.radius) * (hooman.radius + o.radius)) {
@@ -69,6 +70,7 @@ public class Main {
                     }
                 }
             }
+            p.setMod();
             obstacles.add(p);
         }
         /*Particle topLeft = new Particle(100,0,0);
@@ -88,12 +90,13 @@ public class Main {
     }
     public static void createDinamicObstacles(List<Particle> obstacles){
         for(int i = 0; i<h;i++){
-            Particle p = new Particle(i+1, 0.4, Math.random() * w, i, Math.random()*4 - 2, 0, 1);
+            Particle p = new Particle(i+1, 0.4, Math.random() * w, i, (Math.random() > 0.5)?1.4:-1.4, 0, 1);
             if(p.vx > 0)
                 p.setGoal(new Vector(10,i));
             else
                 p.setGoal(new Vector(0,i));
             p.setPrivateSpace(0.5);
+            p.setMod();
             obstacles.add(p);
         }
 
@@ -104,6 +107,7 @@ public class Main {
         for(int i = 0; i<h;i+=2){
             for(int j = 0; j<w;j+=2) {
                 Particle p = new Particle(i + 1, 0.2, j + c % 2, i, 0, 0, 1);
+                p.setMod();
                 obs.add(p);
             }
             c++;

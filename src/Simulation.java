@@ -30,8 +30,11 @@ public class Simulation {
             forces.add(new Vector(0,0));
         }
         FileWriter fl = null;
-        if(file)
-             fl = new FileWriter("out.txt");
+        FileWriter sp = null;
+        if(file) {
+            sp = new FileWriter("speed.txt");
+            fl = new FileWriter("out.txt");
+        }
         int acum = 0;
         while(!peopleHasReachTarget() && acum*dt < 35){
             acum++;
@@ -40,9 +43,6 @@ public class Simulation {
             for(Particle p : people){
                 Vector force =forces.get(p.id);
                 force.set(p.goalForce());
-                /*for(Particle o : obstacle){
-                    force.add(p.repulsionWall(o));
-                }*/
                 getForce(p,people,force);
                 getForce(p,obstacle,force);
                 p.updatePosition(force,dt);
@@ -50,8 +50,10 @@ public class Simulation {
             }
 
             for(Particle p : people){
-                if(file)
+                if(file) {
                     fl.write(p.toString());
+                    sp.write( Math.sqrt(p.vx*p.vx + p.vy*p.vy)+"\n");
+                }
                 if(p.id > 0){
                     if(p.isOnTarget()){
                         if(p.goal.x == 0)
